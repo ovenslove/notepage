@@ -10,7 +10,6 @@ import 'element-ui/lib/theme-default/index.css'
 import App from './App'
 import Main from './components/Main'
 import About from './components/About'
-import Index from './components/Index'
 
 Vue.use(Vuex)
 Vue.use(VueResource)
@@ -29,7 +28,7 @@ const store = new Vuex.Store({
 })
 const routes = [{
 		path: '/',
-		component: Index
+		component: Main
     },
 	{
 		path: '/main',

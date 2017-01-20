@@ -7,13 +7,15 @@
 </template>
 
 <script>
+// import editormd from '../../static/bower_components/editor.md/editormd.min.js'
 export default {
   name: 'app',
   data() {
     return {}
   },
   components: {},
-  methods: {}
+  methods: {},
+  mounted() {}
 }
 </script>
 
