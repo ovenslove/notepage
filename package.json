@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "element-ui": "^1.1.5",
+    "marked": "^0.3.6",
     "vue": "^2.1.0",
     "vue-resource": "^1.0.3",
     "vue-router": "^2.1.1",
+    "vue-scroll": "^2.0.1",
     "vuex": "^2.1.1"
   },
   "devDependencies": {

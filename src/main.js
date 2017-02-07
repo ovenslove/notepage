@@ -10,7 +10,9 @@ import 'element-ui/lib/theme-default/index.css'
 import App from './App'
 import Main from './components/Main'
 import About from './components/About'
+import VueScroll from 'vue-scroll'
 
+Vue.use(VueScroll)
 Vue.use(Vuex)
 Vue.use(VueResource)
 Vue.use(VueRouter)
@@ -18,7 +20,7 @@ Vue.use(ElementUI)
 
 const store = new Vuex.Store({
 	state: {
-		// folderIsShow: true
+		folderIsShow: false
 	},
 	mutations: {
 		updatefolderStatus(state, status) {

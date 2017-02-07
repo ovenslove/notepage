@@ -64,6 +64,7 @@
 
           </div>
         </div>
+        <p>{{message}}</p>
       </div>
     </div>
     <div class="editContainer">
@@ -71,7 +72,7 @@
         <input type="text" name="notetitle" id="noteTtile" placeholder="请输入笔记标题">
       </div>
       <div id="editormd">
-        <textarea style="display:none;" id="notecontent"></textarea>
+        <editor></editor>
       </div>
     </div>
   </div>
@@ -79,12 +80,15 @@
 </template>
 
 <script>
+import editor from '../components/Editor'
+
 export default {
   name: 'main',
   data() {
     return {
       menuActive: 2,
       folderIsShow: true,
+      message: '111',
       folderData: [{
         name: 'web',
         filesNum: 10,
@@ -147,6 +151,9 @@ export default {
       }]
     }
   },
+  components: {
+    editor
+  },
   methods: {
     menuToggle(data) {
       switch (data) {
@@ -160,7 +167,6 @@ export default {
           } else {
             this.folderIsShow = true
           }
-          this.noright()
           break
         case 3:
           break
@@ -171,8 +177,10 @@ export default {
 
       this.menuActive = data
     },
-    noright() {
-      console.log('1111')
+    watch: {
+      message: function() {
+        console.log('111')
+      }
     }
   }
 }
@@ -503,9 +511,10 @@ body {
     box-sizing: border-box;
     overflow: hidden;
     .noteTitleContainer {
-        height: 55px;
+        height: 56px;
         width: 100%;
         box-sizing: border-box;
+        border-bottom: 1px solid #ddd;
         #noteTtile {
             display: block;
             width: 100%;
