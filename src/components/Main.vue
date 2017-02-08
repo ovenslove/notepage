@@ -64,7 +64,7 @@
 
           </div>
         </div>
-        <p>{{message}}</p>
+        <!-- <p>{{message}}</p> -->
       </div>
     </div>
     <div class="editContainer">
