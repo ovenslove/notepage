@@ -47,7 +47,7 @@
         <span class="icon-equalizer"></span>
       </div>
       <div class="searchResultContainer">
-        <div class="simNoteContainer" v-for="item in folderData[0].data">
+        <div class="simNoteContainer" v-for="item in noteData">
           <div class="title">
             <span class="icon icon-markdown"></span><span class="titleWord">  {{item.title}}</span>
           </div>
@@ -64,12 +64,13 @@
 
           </div>
         </div>
-        <!-- <p>{{message}}</p> -->
+        <p>{{noteContent}}</p>
       </div>
     </div>
     <div class="editContainer">
       <div class="noteTitleContainer">
-        <input type="text" name="notetitle" id="noteTtile" placeholder="请输入笔记标题">
+        <input type="text" name="notetitle" id="noteTtile" :value="noteTitle" @input="update" placeholder="请输入笔记标题">
+        <div id="saveNoteBtn" @click="saveNotefn">保存</div>
       </div>
       <div id="editormd">
         <editor></editor>
@@ -81,6 +82,61 @@
 
 <script>
 import editor from '../components/Editor'
+import {
+  mapState
+} from 'vuex'
+
+// 获取指定文件夹内的笔记数据
+function getNotesByType(type, that) {
+  var url = 'http://192.168.2.177:10001/notes?category=' + type
+  that.$http({
+    method: 'GET',
+    url: url,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then((response) => {
+    console.log(response.body)
+    that.noteData = response.body
+  }, (response) => {
+    console.log('error')
+  })
+}
+// 获取文件夹数据
+function getfolder(that) {
+  var url = 'http://192.168.2.177:10001/folders'
+  that.$http({
+    method: 'GET',
+    url: url,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then((response) => {
+    console.log(response.body)
+    that.folderData = response.body
+  }, (response) => {
+    console.log('error')
+  })
+}
+
+function addNote(obj, that) {
+  var url = 'http://192.168.2.177:10001/notes'
+  that.$http({
+    method: 'POST',
+    url: url,
+    body: obj,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then((response) => {
+    console.log(response)
+    if (response.code === 200) {
+      console.log('添加成功')
+    }
+  }, (response) => {
+    console.log('error')
+  })
+}
 
 export default {
   name: 'main',
@@ -88,69 +144,21 @@ export default {
     return {
       menuActive: 2,
       folderIsShow: true,
-      message: '111',
-      folderData: [{
-        name: 'web',
-        filesNum: 10,
-        data: [{
-          title: '标题标题标题标题标题标题标题标题标题标题标题标题标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。的详细用法可以通过以下链接查看教程详细说明。的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }, {
-          title: '标题标题',
-          content: 'v-for 的详细用法可以通过以下链接查看教程详细说明。',
-          type: 'md',
-          addTime: '20170117'
-        }]
-      }, {
-        name: 'node',
-        filesNum: 10
-      }, {
-        name: 'css',
-        filesNum: 10
-      }, {
-        name: 'php',
-        filesNum: 10
-      }, {
-        name: '随笔',
-        filesNum: 10
-      }, {
-        name: '心得',
-        filesNum: 10
-      }]
+      noteTitle: '',
+      noteData: [],
+      folderData: []
     }
   },
+  created: function() {
+    console.log('创建完成')
+    getNotesByType('web', this)
+    getfolder(this)
+  },
+  computed: mapState({
+    noteContent() {
+      return this.$store.state.noteContent
+    }
+  }),
   components: {
     editor
   },
@@ -172,15 +180,28 @@ export default {
           break
         default:
           break
-
       }
-
       this.menuActive = data
     },
-    watch: {
-      message: function() {
-        console.log('111')
-      }
+    update(e) {
+      this.noteTitle = e.target.value
+      this.$store.commit('noteTitlefn', e.target.value)
+      console.log()
+    },
+    saveNotefn() {
+      console.log('111')
+      addNote({
+        'category': 'web',
+        'title': this.noteTitle,
+        'content': this.$store.state.noteContent,
+        'type': 'md',
+        'addTime': new Date().getTime()
+      }, this)
+    }
+  },
+  watch: {
+    message: function() {
+      console.log('111')
     }
   }
 }
@@ -515,6 +536,7 @@ body {
         width: 100%;
         box-sizing: border-box;
         border-bottom: 1px solid #ddd;
+        display: flex;
         #noteTtile {
             display: block;
             width: 100%;
@@ -525,6 +547,21 @@ body {
             font-size: 16px;
             &:focus {
                 background: #f5f5f5;
+            }
+        }
+        #saveNoteBtn {
+            width: 100px;
+            height: 100%;
+            background: #ddd;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            &:hover {
+                background: rgb(118, 222, 101);
+                color: #fff;
+
             }
         }
     }

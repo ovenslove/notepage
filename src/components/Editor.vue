@@ -17,10 +17,11 @@
         <li><i class="fa fa-table" aria-hidden="true"></i></li>
         <li @click="view" :class="{active :!preview}"><i class="fa fa-eye-slash" aria-hidden="true"></i></li>
         <li @click="full" :class="{active :fullScreen}"><i class="fa fa-arrows-alt" aria-hidden="true"></i></li>
+        <li>{{title}}</li>
       </ul>
     </div>
     <div class="editorContainer" id="editorContainer">
-      <textarea id="editorContentContainer" :value="input" @input="update" @onchange="update" v-scroll="onScroll"></textarea>
+      <textarea id="editorContentContainer" :value="input" @input="update" v-scroll="onScroll"></textarea>
       <div id="previewContainer" class="markdown-body" :class="{active :!preview}" v-html="compiledMarkdown" >
       </div>
     </div>
@@ -46,6 +47,9 @@ marked.setOptions({
     return hljs.highlightAuto(code).value
   }
 })
+import {
+  mapState
+} from 'vuex'
 export default {
   name: 'editor',
   data() {
@@ -61,13 +65,16 @@ export default {
   mounted: function() {
 
   },
-  computed: {
-    compiledMarkdown: function() {
+  computed: mapState({
+    compiledMarkdown() {
       return marked(this.input, {
         sanitize: true
       })
+    },
+    title() {
+      return this.$store.state.noteTitle
     }
-  },
+  }),
   components: {
 
   },
@@ -82,6 +89,7 @@ export default {
   methods: {
     update: function(e) {
       this.input = e.target.value
+      this.$store.commit('noteContentfn', e.target.value)
     },
     onScroll: function(e, position) {
       this.position = position

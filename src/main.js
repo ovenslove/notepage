@@ -20,11 +20,19 @@ Vue.use(ElementUI)
 
 const store = new Vuex.Store({
 	state: {
-		folderIsShow: false
+		folderIsShow: false,
+		noteTitle: '# aaa',
+		noteContent: ''
 	},
 	mutations: {
 		updatefolderStatus(state, status) {
 			state.folderIsShow = status
+		},
+		noteTitlefn(state, status) {
+			state.noteTitle = status
+		},
+		noteContentfn(state, status) {
+			state.noteContent = status
 		}
 	}
 })
