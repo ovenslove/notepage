@@ -33,7 +33,7 @@
           <span class="icon-folder"></span> 我的文件夹
         </div>
         <div class="myFolderContainer" v-if="folderIsShow">
-          <div class="simFolder" v-for="item in folderData">
+          <div class="simFolder" v-for="item in folderData" @click="getNotes(item.name)">
             <span class="icon icon-folder"></span> {{item.name}}
           </div>
 
@@ -88,7 +88,7 @@ import {
 
 // 获取指定文件夹内的笔记数据
 function getNotesByType(type, that) {
-  var url = 'http://192.168.2.177:10001/notes?category=' + type
+  var url = 'http://192.168.2.177:10001/notes?category=' + type + '&status=0'
   that.$http({
     method: 'GET',
     url: url,
@@ -120,7 +120,7 @@ function getfolder(that) {
 }
 
 function addNote(obj, that) {
-  var url = 'http://192.168.2.177:10001/notes'
+  var url = 'http://192.168.2.177:10001/notes?status=0'
   that.$http({
     method: 'POST',
     url: url,
@@ -130,9 +130,63 @@ function addNote(obj, that) {
     }
   }).then((response) => {
     console.log(response)
-    if (response.code === 200) {
+    if (response.status === 200 || response.status === 201) {
       console.log('添加成功')
     }
+  }, (response) => {
+    console.log('error')
+  })
+}
+//  获取分享的笔记
+function getShareNotes(obj, that) {
+  obj = obj || {}
+  var url = 'http://192.168.2.177:10001/notes?share=true&status=0'
+  that.$http({
+    method: 'GET',
+    url: url,
+    body: obj,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then((response) => {
+    console.log(response)
+    that.noteData = response.body
+  }, (response) => {
+    console.log('error')
+  })
+}
+// 获取最新笔记
+function getNewNotes(obj, that) {
+  obj = obj || {}
+  var url = 'http://192.168.2.177:10001/notes?_sort=addTime&_order=DESC&status=0'
+  that.$http({
+    method: 'GET',
+    url: url,
+    body: obj,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then((response) => {
+    console.log(response)
+    that.noteData = response.body
+  }, (response) => {
+    console.log('error')
+  })
+}
+// 获取回收站笔记
+function getTrushNotes(obj, that) {
+  obj = obj || {}
+  var url = 'http://192.168.2.177:10001/notes?_sort=addTime&_order=DESC&status=1'
+  that.$http({
+    method: 'GET',
+    url: url,
+    body: obj,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then((response) => {
+    console.log(response)
+    that.noteData = response.body
   }, (response) => {
     console.log('error')
   })
@@ -151,7 +205,8 @@ export default {
   },
   created: function() {
     console.log('创建完成')
-    getNotesByType('web', this)
+    // getNotesByType('web', this)
+    getNewNotes({}, this)
     getfolder(this)
   },
   computed: mapState({
@@ -166,8 +221,10 @@ export default {
     menuToggle(data) {
       switch (data) {
         case 0:
+          this.getNewfn()
           break
         case 1:
+          this.getSharefn()
           break
         case 2:
           if (this.menuActive === 2) {
@@ -177,6 +234,7 @@ export default {
           }
           break
         case 3:
+          this.getTrush()
           break
         default:
           break
@@ -195,8 +253,25 @@ export default {
         'title': this.noteTitle,
         'content': this.$store.state.noteContent,
         'type': 'md',
+        'share': false,
+        'shareUrl': '',
+        'status': 0,
         'addTime': new Date().getTime()
       }, this)
+    },
+    getSharefn() {
+      getShareNotes({}, this)
+    },
+    getNewfn() {
+      console.log('sssss')
+      getNewNotes({}, this)
+    },
+    getNotes(data) {
+      console.log(data)
+      getNotesByType(data, this)
+    },
+    getTrush() {
+      getTrushNotes({}, this)
     }
   },
   watch: {
@@ -463,6 +538,9 @@ body {
             box-sizing: border-box;
             padding: 0 5px 5px;
             border-bottom: 1px solid #ddd;
+            &:hover {
+                background: #f0f0f0;
+            }
             .title {
                 width: 100%;
                 height: 30px;
